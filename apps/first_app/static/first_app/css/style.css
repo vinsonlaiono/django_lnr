@@ -1,0 +1,11 @@
+.registration_box,
+.login_box{
+    width: 400px;
+    display: inline-block;
+    vertical-align: top;
+    margin: 50px;
+}
+.messages{
+    /* text-align: center; */
+    color: red;
+}

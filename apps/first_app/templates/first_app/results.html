@@ -7,16 +7,67 @@
     {% load static %}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'first_app/css/style.css' %}">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
     <!-- Optional theme -->
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"> -->
 
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to your page {{ user.first_name }}!</h1>
-        <a href="/logout">Logout</a>
+        <p class="text-right"><a href="/logout" style="text-align:right;">Logout</a></p>
+        <h1 class="text-capitalize" >Hello, {{ user.first_name }}!</h1>
+        <div class="user_wish_list">
+                <br>
+                <h3>Your Wish List:</h3>
+                <table class="table">
+                        <tr>
+                            <td>Item</td>
+                            <td>Added by</td>
+                            <td>Date Added</td>
+                            <td>Action</td>
+                        </tr>
+                        {% for item in wishes %}
+                        <tr>
+                            <td><a href="show/{{wish.id }}">{{item.item}}</a></td>
+                            <td class="text-capitalize">{{wisher}}</td>
+                            <td>{{item.created_at}}</td>
+                            <td>
+                                <a href="users/{{user.id}}">Remove from my list</a> 
+                                <a href="users/{{user.id}}">Delete</a> 
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+        </div>
+        <div class="other_wish_list">
+                <br>
+                <h3>Other User's Wish List:</h3>
+                <table class="table">
+                        <tr>
+                            <td>Item</td>
+                            <td>Added by</td>
+                            <td>Date Added</td>
+                            <td>Action</td>
+                        </tr>
+                        {% for wish in all_wishes %}
+                        <tr>
+                            <td><a href="show/{{wish.id }}">{{wish.item}}</a></td>
+                            <td class="text-capitalize">{{all_wish.first_name}}</td>
+                            <td>{{user.created_at}}</td>
+                            <td>
+                                <a href="users/{{user.id}}">Remove from my list</a> 
+                                <a href="users/{{user.id}}">Delete</a> 
+                                
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+        </div>
+        <p class="text-right"><a href="/add_item">Add Item</a></p>
+        
     </div>
 </body>
 </html>

@@ -29,14 +29,12 @@
                 {% endif %}
                 
                 <div class="registration_box">
-                        <h1>{{name.item}}</h1>
+                        <h1>{{wished_item.item}}</h1>
                         <br>
                         <br>
-
                         <p>Users who added this prodect/item under their wish list</p>
-
-                        {% for i in item %}
-                            <p>{{i.wished_by.first_name}}</p>
+                        {% for wishers in wishedby %}
+                            <p>{{wishers.first_name}}</p>
                         {% endfor %}
 
                         

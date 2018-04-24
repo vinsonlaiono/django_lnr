@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from .models import *
 from django.contrib import messages
 import bcrypt
+from django.db.models import Q
 
 # Create your views here.
 def index(request):
@@ -12,54 +13,23 @@ def results(request):
         id = request.session['userid']
         user = User.objects.get(id = id)
 
-        users_wish = Item.objects.filter(wished_by = id)
-        print(users_wish.all()[0].wished_by.all()[0].first_name, "pppppppppppp")
+        # get all items from user in session
+        # user_items = Item.objects.filter(uploader_id = id)
+        users = Item.objects.filter(uploader_id = id)
+        # print(users.item, 'aaaaaaaaaa')
+        # get all users items
 
-        # context = {
-        #     'users_wish':users_wish
-        # }
+        liked = Item.objects.filter(wished_by = user)
+        not_liked = Item.objects.filter(~Q(wished_by = user))
 
-        
-
-        print(users_wish, "88888888888888888")
-        print(users_wish, "555555555555555555")
-
-
-        # wish = all_wishes[0]
-
-        # print(wish)
-        
-        # get all users wishes
-       
-        all_wishes = Item.objects.all().order_by('-created_at') 
-        all_wish = all_wishes[0].wished_by.all()[0]
-        
-        users = all_wishes[0].wished_by.all()
-        print(users[0].first_name, "8888888888888")
-        
-
-
-       
-        allitems = Item.objects.all()
-        items = allitems[0]
-
-        wishedby = items.wished_by.all()
-        wisher = wishedby[0]
-
-
-
-        useritems = Item.objects.filter(id = id)
+        all_users = Item.objects.all().order_by("-created_at") 
 
         context = {
-            'items': items,
-            # 'wish':wish,
-            'useritems': useritems,
-            'wisher':wisher,
-            'all_wishes': all_wishes,
-            'all_wish': all_wish,
-            'users_wish': users_wish,
+            'user': user,
             'users': users,
-            'user': user
+            'all_users': all_users,
+            'liked': liked,
+            'not_liked': not_liked
         }
 
         return render(request, "first_app/results.html", context)
@@ -78,20 +48,17 @@ def show_item(request, item_id):
         id = request.session['userid']
         user = User.objects.get(id = id)
 
-        allitems = Item.objects.filter(id = item_id)
-        useritem = allitems[0]
-
+        
 
         # all items
-        
-        
 
+        wished_item = Item.objects.get(id = item_id)
 
-        wishedby = Item.objects.filter(wished_by = User.objects.filter(id = id))
+        wishedby = User.objects.filter(wished_item = Item.objects.get(id = item_id) )
 
         context = {
-            'item': item,
-            'name': name
+           'wished_item': wished_item,
+           'wishedby': wishedby
         }
 
 
@@ -130,9 +97,9 @@ def item_process(request):
 
 
             # users_wish = Item.objects.filter(wished_by = id)
-
+            
             # create the item
-            Item.objects.create(item = item)
+            Item.objects.create(item = item, uploader_id = id)
             # get the last item created
             allitems = Item.objects.last()
             # get specific item
@@ -141,6 +108,43 @@ def item_process(request):
             item.wished_by= User.objects.filter(id = id)
 
             return redirect('/results')
+def addmylist(request, item_id):
+    if 'userid' in request.session:
+        id = request.session['userid']
+        user = User.objects.get(id = id)
+
+        item = Item.objects.get(id = item_id)
+
+        user.wished_item.add(item) 
+        user.save()
+        
+
+
+        return redirect('/results')
+def remove_item(request, item_id):
+    if 'userid' in request.session:
+        id = request.session['userid']
+        user = User.objects.get(id = id)
+
+        remove = user.wished_item.get(id = item_id)
+
+        remove.delete()
+        remove.save()
+        
+
+
+        return redirect('/results')
+def delete(request, item_id):
+    if 'userid' in request.session:
+        id = request.session['userid']
+        user = User.objects.get(id = id)
+
+        delete = Item.objects.get(id = item_id)
+
+        delete.delete()
+
+
+        return redirect('/results')
 
 
 

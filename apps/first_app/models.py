@@ -61,6 +61,7 @@ class User(models.Model):
     objects = UserManager()
 class Item(models.Model):
     item = models.CharField(max_length=255)
+    uploader = models.ForeignKey(User, related_name="wishes")
     wished_by = models.ManyToManyField(User, related_name="wished_item")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -17,31 +17,19 @@
 </head>
 <body>
     <div class="container">
-        <p class="text-right"><a href="/logout" style="text-align:right;">Logout</a></p>
-        <!-- <h1 class="text-capitalize" >Hello, {{ user.first_name }}!</h1> -->
-        <div class="Add_item_box">
-                {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                    <ul>{{ message }}</ul>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                
-                <div class="registration_box">
-                        <h1>{{wished_item.item}}</h1>
-                        <br>
-                        <br>
-                        <p>Users who added this prodect/item under their wish list</p>
-                        {% for wishers in wishedby %}
-                            <p>{{wishers.first_name}}</p>
-                        {% endfor %}
+        <a href="/results">Home</a>
+        <br>
+        <br>
+        <h1>{{item.item}}</h1>
+        <br>
+        <br>
+        <p>Users who added this prodect/item under their wish list</p>
+        <ul>
+            {% for wisher in wishedby %}
+            <p>{{ wisher.first_name }}</p>
+            {% endfor %}
+        </ul>
 
-                        
-                </div>
-
-            </div>
-        </div>
     </div>
 </body>
 </html>

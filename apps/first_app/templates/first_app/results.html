@@ -19,53 +19,55 @@
     <div class="container">
         <p class="text-right"><a href="/logout" style="text-align:right;">Logout</a></p>
         <h1 class="text-capitalize" >Hello, {{ user.first_name }}!</h1>
-        <div class="user_wish_list">
-                <br>
-                <h3>Your Wish List:</h3>
-                <table class="table">
-                        <tr>
-                            <td>Item</td>
-                            <td>Added by</td>
-                            <td>Date Added</td>
-                            <td>Action</td>
-                        </tr>
-                        {% for item in liked %}
-                        <tr>
-                            <td><a href="show/{{item.id }}">{{item.item}}</a></td>
-                            <td class="text-capitalize">{{item.uploader.first_name}}</td>
-                            <td>{{item.created_at}}</td>
-                            <td>
-                                <a href="remove/{{item.id}}">Remove from my list</a> 
-                                <a href="delete/{{item.id}}">Delete</a> 
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-        </div>
-        <div class="other_wish_list">
-                <br>
-                <h3>Other User's Wish List:</h3>
-                <table class="table">
-                        <tr>
-                            <td>Item</td>
-                            <td>Added by</td>
-                            <td>Date Added</td>
-                            <td>Action</td>
-                        </tr>
-                        {% for item in not_liked %}
-                        <tr>
-                            <td><a href="show/{{item.id }}">{{item.item}}</a></td>
-                            <td class="text-capitalize">{{item.uploader.first_name}}</td>
-                            <td>{{item.created_at}}</td>
-                            <td>
-                                <a href="additem/{{item.id}}">Add to my list</a> 
-                                
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-        </div>
-        <p class="text-right"><a href="/add_item">Add Item</a></p>
+        <br>
+        <div class="table-responsive">
+            <h1>Your Wish List</h1>
+            <br>
+            <table class="table">
+                <tr>
+                    <td>Item</td>
+                    <td>Added by</td>
+                    <td>Date Added</td>
+                    <td>Action</td>
+                </tr>
+                {% for item in users_wishes %}
+                <tr>
+                    <td><a href="show_item/{{item.id}}">{{item.item}}</a></td>
+                    <td>{{item.uploader.first_name}}</td>
+                    <td>{{item.created_at}}</td>
+                    <td>
+                        <a href="remove_item/{{item.id}}">Remove from list</a>
+                        {% if request.session.userid == item.uploader.id %}
+                        <a href="delete/{{item.id}}">| Delete</a> 
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+          </div>
+          <br>
+            <h1>Other User's wish List</h1>
+            <br>
+            <table class="table">
+                <tr>
+                    <td>Item</td>
+                    <td>Added by</td>
+                    <td>Date Added</td>
+                    <td>Action</td>
+                </tr>
+                {% for item in not_wished %}
+                <tr>
+                    <td><a href="show_item/{{item.id}}">{{item.item}}</a></td>
+                    <td>{{item.uploader.first_name}}</td>
+                    <td>{{user.created_at}}</td>
+                    <td>
+                        <a href="add_to_my_list/{{item.id}}">Add to my list</a> 
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            <a href="/users/new"><button type="submit" class="btn btn-default">Add Item</button></a>
+          </div>
         
     </div>
 </body>

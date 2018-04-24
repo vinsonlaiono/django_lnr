@@ -13,65 +13,29 @@ def results(request):
         id = request.session['userid']
         user = User.objects.get(id = id)
 
-        # get all items from user in session
-        # user_items = Item.objects.filter(uploader_id = id)
-        users = Item.objects.filter(uploader_id = id)
-        # print(users.item, 'aaaaaaaaaa')
-        # get all users items
+        current_user_items = Item.objects.filter(uploader_id = id)
+        users_wishes = Item.objects.filter(wished_by = user)
+        not_wished = Item.objects.filter(~Q(wished_by = user)).order_by("-created_at")
 
-        liked = Item.objects.filter(wished_by = user)
-        not_liked = Item.objects.filter(~Q(wished_by = user))
 
-        all_users = Item.objects.all().order_by("-created_at") 
 
         context = {
+            'not_wished':not_wished,
+            'current_user_items':current_user_items,
+            'users_wishes':users_wishes,
             'user': user,
-            'users': users,
-            'all_users': all_users,
-            'liked': liked,
-            'not_liked': not_liked
         }
 
         return render(request, "first_app/results.html", context)
     else:   
         return redirect('/')
-def additem(request):
+
+# Render Show.HTML
+def addnew(request):
     if 'userid' in request.session:
         id = request.session['userid']
         user = User.objects.get(id = id)
-        return render(request, "first_app/additem.html", {'user': user})
-    else:   
-        return redirect('/')
-
-def show_item(request, item_id):
-    if 'userid' in request.session:
-        id = request.session['userid']
-        user = User.objects.get(id = id)
-
-        
-
-        # all items
-
-        wished_item = Item.objects.get(id = item_id)
-
-        wishedby = User.objects.filter(wished_item = Item.objects.get(id = item_id) )
-
-        context = {
-           'wished_item': wished_item,
-           'wishedby': wishedby
-        }
-
-
-
-        # create a wish list for one user
-        # add an item to the users wish list.
-
-        #adding a comment made by someone else to someones wall
-        # get the user who create the item
-        # show that item on the users table
-
-
-        return render(request, "first_app/show.html", context)
+        return render(request, "first_app/additem.html")
     else:   
         return redirect('/')
 
@@ -79,75 +43,62 @@ def logout(request):
     request.session.clear()
     return redirect('/')
 
-def item_process(request):
+def add_newitem(request):
     if request.method == "POST":
-        # errors = User.objects.register_validator(request.POST)
-        # if len(errors):
-        #     # if the errors object contains anything, loop through each key-value pair and make a flash message
-        #     for key, value in errors.items():
-        #         messages.error(request, value)
-        #     # redirect the user back to the form to fix the errors
-        #     return redirect('/')
-        # else:
         if 'userid' in request.session:
             id = request.session['userid']
             user = User.objects.get(id = id)
+            newitem = request.POST['newitem']
 
-            item = request.POST['item']
+            addeditem = Item.objects.create(item = newitem, uploader = User.objects.get(id = id))
 
-
-            # users_wish = Item.objects.filter(wished_by = id)
-            
-            # create the item
-            Item.objects.create(item = item, uploader_id = id)
-            # get the last item created
-            allitems = Item.objects.last()
-            # get specific item
-            item = allitems
-            # assign user to item
-            item.wished_by= User.objects.filter(id = id)
-
+            user.wished_item.add(addeditem)
+            user.save()
+        
             return redirect('/results')
-def addmylist(request, item_id):
+def show_item(request, item_id):
     if 'userid' in request.session:
         id = request.session['userid']
         user = User.objects.get(id = id)
 
         item = Item.objects.get(id = item_id)
+        wishedby = User.objects.filter(wished_item = Item.objects.get(id = item_id))
+        context={
+            'item': item,
+            'wishedby': wishedby
+        }
+        return render(request, "first_app/show.html", context)
 
-        user.wished_item.add(item) 
-        user.save()
-        
-
-
-        return redirect('/results')
 def remove_item(request, item_id):
     if 'userid' in request.session:
         id = request.session['userid']
         user = User.objects.get(id = id)
 
-        remove = user.wished_item.get(id = item_id)
+        item = user.wished_item.get(id = item_id)
+        item.delete()
+        item.save()
+        return redirect('/results')
 
-        remove.delete()
-        remove.save()
+def add_to_my_list(request, item_id):
+    if 'userid' in request.session:
+        id = request.session['userid']
+        user = User.objects.get(id = id)
+
+        item = Item.objects.get(id = item_id)
+        user.wished_item.add(item)
+        user.save()
         
-
-
         return redirect('/results')
 def delete(request, item_id):
     if 'userid' in request.session:
         id = request.session['userid']
         user = User.objects.get(id = id)
 
-        delete = Item.objects.get(id = item_id)
+        item = Item.objects.get(id = item_id)
+        item.delete()
 
-        delete.delete()
-
-
+        
         return redirect('/results')
-
-
-
 
 def process(request):
     if request.method == "POST":

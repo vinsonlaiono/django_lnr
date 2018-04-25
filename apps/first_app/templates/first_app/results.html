@@ -16,58 +16,75 @@
 
 </head>
 <body>
-    <div class="container">
+    <div class="container" style="vertical-align: top;">
         <p class="text-right"><a href="/logout" style="text-align:right;">Logout</a></p>
-        <h1 class="text-capitalize" >Hello, {{ user.first_name }}!</h1>
+        <h1 class="text-capitalize" >Welcome, {{ user.first_name }}!</h1>
         <br>
-        <div class="table-responsive">
-            <h1>Your Wish List</h1>
-            <br>
-            <table class="table">
-                <tr>
-                    <td>Item</td>
-                    <td>Added by</td>
-                    <td>Date Added</td>
-                    <td>Action</td>
-                </tr>
-                {% for item in users_wishes %}
-                <tr>
-                    <td><a href="show_item/{{item.id}}">{{item.item}}</a></td>
-                    <td>{{item.uploader.first_name}}</td>
-                    <td>{{item.created_at}}</td>
-                    <td>
-                        <a href="remove_item/{{item.id}}">Remove from list</a>
-                        {% if request.session.userid == item.uploader.id %}
-                        <a href="delete/{{item.id}}">| Delete</a> 
-                        {% endif %}
-                    </td>
-                </tr>
+        
+        <div class="quotes" style="display: flex; justify-content: space-between"> 
+            <div class="user_quotes" style="display: inline-block; vertical-align: top; overflow-y: scroll; height: 950px;" > 
+                    <h4>Quotable Quotes</h4>
+                    {% for quote in not_faved %}
+                <div class="card_box">
+                    <div class="card" style="width: 16rem;">
+                        <div class="card-body">
+                            <p class="card-text">{{quote.quoter}}: {{ quote.quote }}</p>
+                            <p style="font-size: 12px;">Posted by <a href="/showuser/{{ quote.uploader.id }}">{{quote.uploader.first_name}}</a></p>
+                            <a href="/addtofavlist/{{ quote.id }}"><button type="button" class="btn btn-primary btn-sm">Add to My List</button></a>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
-            </table>
-          </div>
-          <br>
-            <h1>Other User's wish List</h1>
-            <br>
-            <table class="table">
-                <tr>
-                    <td>Item</td>
-                    <td>Added by</td>
-                    <td>Date Added</td>
-                    <td>Action</td>
-                </tr>
-                {% for item in not_wished %}
-                <tr>
-                    <td><a href="show_item/{{item.id}}">{{item.item}}</a></td>
-                    <td>{{item.uploader.first_name}}</td>
-                    <td>{{user.created_at}}</td>
-                    <td>
-                        <a href="add_to_my_list/{{item.id}}">Add to my list</a> 
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-            <a href="/users/new"><button type="submit" class="btn btn-default">Add Item</button></a>
-          </div>
+            </div>
+            
+            <!-- left side users favorite quote -->
+            <div class="left_side" style="display: inline-block">
+                <div>
+                        <div class="fav_quotes" style="display: inline-block; vertical-align: top; overflow-y: scroll; height: 450px;" > 
+                                <h4>Favorite Quote</h4>
+                                {% for quote in users_fav_quotes %}
+                            <div class="card_box">
+                                <div class="card" style="width: 16rem;">
+                                    <div class="card-body">
+                                        <p class="card-text">{{ quote.quoter }}: {{ quote.quote }}</p>
+                                        <p style="font-size: 12px;">Posted by <a href="/showuser/{{ quote.uploader.id }}">{{quote.uploader.first_name}}</a></p>
+                                        <a href="/removefromlist/{{ quote.id }}"><button type="button" class="btn btn-primary btn-sm">Remove from My List</button></a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                </div>
+                <div class="card_box" style="width: 400px;">
+                    <h4>Add Quote</h4>
+                    <form action="/add_newquote" method="POST" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <div class="card_box">
+                                <div class="card" style="width: 16rem;">
+                                    <div class="card-body">
+                                            {% if messages %}
+                                            <ul class="messages">
+                                                {% for message in messages %}
+                                                <ul>{{ message }}</ul>
+                                                {% endfor %}
+                                            </ul>
+                                            {% endif %}
+                                        Quoted by: <input type="text" name="quoted_by" class="form-control" id="inputEmail3" placeholder="Who said this?">
+                                        Message: <textarea class="form-control" name="quote" aria-label="With textarea"></textarea>
+                                        <!-- <p class="card-text">Greg: Looking for somewhere to play some ball? Look no more. This is a once stop solution for finding places to hoop</p> -->
+                                        <!-- <p style="font-size: 12px;">Posted by <a href="">User</a></p> -->
+                                        <br>
+                                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
         
     </div>
 </body>

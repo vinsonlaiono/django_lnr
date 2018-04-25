@@ -6,6 +6,14 @@ import bcrypt
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 # Create your models here.
 class UserManager(models.Manager):
+    def quote_validator(self, postData):
+        errors = {}
+
+        if len(postData['quoted_by']) < 3:
+            errors['quoteAuthor'] = "Quoted by must have at least 3 characters"
+        if len(postData['quote']) < 10:
+            errors['quoteAuthor'] = "Quote by must have at least 10 characters"
+        return errors
     def register_validator(self, postData):
         errors = {}
         # First name validates length
@@ -59,9 +67,10 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = UserManager()
-class Item(models.Model):
-    item = models.CharField(max_length=255)
-    uploader = models.ForeignKey(User, related_name="wishes")
-    wished_by = models.ManyToManyField(User, related_name="wished_item")
+class Quote(models.Model):
+    quote = models.CharField(max_length=255)
+    quoter = models.CharField(max_length=255)
+    uploader = models.ForeignKey(User, related_name="quotes")
+    favorited_by = models.ManyToManyField(User, related_name="fav_quotes")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

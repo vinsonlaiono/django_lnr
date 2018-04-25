@@ -13,16 +13,16 @@ def results(request):
         id = request.session['userid']
         user = User.objects.get(id = id)
 
-        current_user_items = Item.objects.filter(uploader_id = id)
-        users_wishes = Item.objects.filter(wished_by = user)
-        not_wished = Item.objects.filter(~Q(wished_by = user)).order_by("-created_at")
+        current_user_quotes = Quote.objects.filter(uploader_id = id)
+        users_fav_quotes = Quote.objects.filter(favorited_by = user)
+        not_faved = Quote.objects.filter(~Q(favorited_by = user)).order_by("-created_at")
 
 
 
         context = {
-            'not_wished':not_wished,
-            'current_user_items':current_user_items,
-            'users_wishes':users_wishes,
+            'not_faved':not_faved,
+            'current_user_quotes':current_user_quotes,
+            'users_fav_quotes':users_fav_quotes,
             'user': user,
         }
 
@@ -30,75 +30,76 @@ def results(request):
     else:   
         return redirect('/')
 
-# Render Show.HTML
-def addnew(request):
-    if 'userid' in request.session:
-        id = request.session['userid']
-        user = User.objects.get(id = id)
-        return render(request, "first_app/additem.html")
-    else:   
-        return redirect('/')
-
-def logout(request):
-    request.session.clear()
-    return redirect('/')
-
-def add_newitem(request):
+def addquote(request):
     if request.method == "POST":
-        if 'userid' in request.session:
-            id = request.session['userid']
-            user = User.objects.get(id = id)
-            newitem = request.POST['newitem']
-
-            addeditem = Item.objects.create(item = newitem, uploader = User.objects.get(id = id))
-
-            user.wished_item.add(addeditem)
-            user.save()
-        
+        errors = User.objects.quote_validator(request.POST)
+        if len(errors):
+            # if the errors object contains anything, loop through each key-value pair and make a flash message
+            for key, value in errors.items():
+                messages.error(request, value)
+            # redirect the user back to the form to fix the errors
             return redirect('/results')
-def show_item(request, item_id):
+        else:
+            if 'userid' in request.session:
+                id = request.session['userid']
+                user = User.objects.get(id = id)
+                quoted_by = request.POST['quoted_by']
+                quote = request.POST['quote']
+
+                addedquote = Quote.objects.create(quote = quote, quoter = quoted_by, uploader = User.objects.get(id = id))
+
+                user.fav_quotes.add(addedquote)
+                user.save()
+            
+                return redirect('/results')
+
+def addtolist(request, quote_id):
     if 'userid' in request.session:
         id = request.session['userid']
         user = User.objects.get(id = id)
 
-        item = Item.objects.get(id = item_id)
-        wishedby = User.objects.filter(wished_item = Item.objects.get(id = item_id))
-        context={
-            'item': item,
-            'wishedby': wishedby
-        }
-        return render(request, "first_app/show.html", context)
+        quote = Quote.objects.get(id = quote_id)
+        user.fav_quotes.add(quote)
+        user.save()
+        
+        return redirect('/results')
 
-def remove_item(request, item_id):
+def removefromlist(request, quote_id):
     if 'userid' in request.session:
         id = request.session['userid']
         user = User.objects.get(id = id)
 
-        item = user.wished_item.get(id = item_id)
+        item = user.fav_quotes.get(id = quote_id)
         item.delete()
         item.save()
         return redirect('/results')
 
-def add_to_my_list(request, item_id):
+def showuser(request, user_id):
     if 'userid' in request.session:
         id = request.session['userid']
         user = User.objects.get(id = id)
 
-        item = Item.objects.get(id = item_id)
-        user.wished_item.add(item)
-        user.save()
-        
-        return redirect('/results')
-def delete(request, item_id):
-    if 'userid' in request.session:
-        id = request.session['userid']
-        user = User.objects.get(id = id)
+        postedby = User.objects.get(id = user_id)
+        # wishedby = User.objects.filter(wished_item = Item.objects.get(id = item_id))
+        userquotes = Quote.objects.filter(uploader = User.objects.get(id = user_id))
 
-        item = Item.objects.get(id = item_id)
-        item.delete()
+        quotes = postedby.quotes.all()
+        count = len(quotes)
+        context={
+            'userquotes': userquotes,
+            'postedby': postedby,
+            'count': count
+        }
+        return render(request, "first_app/show.html", context)
 
-        
-        return redirect('/results')
+
+
+
+
+
+def logout(request):
+    request.session.clear()
+    return redirect('/')
 
 def process(request):
     if request.method == "POST":

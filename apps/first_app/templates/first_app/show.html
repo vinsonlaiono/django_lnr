@@ -17,18 +17,24 @@
 </head>
 <body>
     <div class="container">
-        <a href="/results">Home</a>
-        <br>
-        <br>
-        <h1>{{item.item}}</h1>
-        <br>
-        <br>
-        <p>Users who added this prodect/item under their wish list</p>
-        <ul>
-            {% for wisher in wishedby %}
-            <p>{{ wisher.first_name }}</p>
+        <div style="text-align:right;">
+            
+            <a href="/results" style="text-align:right;">Dashoard</a>
+            <a href="/logout" style="text-align:right;">| Logout</a>
+        </div>
+        
+        
+        
+        <h1>Posts by: <span class="text-capitalize">{{ postedby.first_name }}</span></h1>
+            <h3>Count: {{ count }}</h3>
+            <br>
+
+            {% for quote in userquotes %}
+            <ul>
+            <p><span class="text-capitalize" style="color:red">{{ quote.quoter }}</span>: {{ quote.quote }}</p>
+            </ul>
             {% endfor %}
-        </ul>
+
 
     </div>
 </body>
